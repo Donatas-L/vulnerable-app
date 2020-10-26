@@ -1,0 +1,15 @@
+{
+  "name": "Donatas-L/vulnerable-app",
+  "description": "A vulnerable app made as a task for university",
+  "minimum-stability": "dev",
+  "license": "MIT License",
+  "authors": [
+    {
+      "name": "Donatas",
+      "email": "laurinavicius.donatas@gmail.com"
+    }
+  ],
+  "require": {
+    "silex/silex": "~2.0"
+  }
+}
