@@ -8,6 +8,10 @@ $app['db'] = function() {
     return new PDO('mysql:host=localhost;dbname=vulnerable', 'vulnerable', 'vulnerable');
 };
 
+$app->get("/", function () {
+    return "Hello world!";
+});
+
 $app->get('/profile', function(Silex\Application $app){
     $db = $app['db'];
     
@@ -27,17 +31,15 @@ $app->get('/profile', function(Silex\Application $app){
 EOF;
 });
 $app->get('/login', function() {
-
+    
+    // Plain text password
     return <<<EOF
     <form action="/login" method="post">
     <label>Username: <input type="text" name="username" /></label>
-
-    // Plain text password
     <label>Password: <input type="password" name="password" /></label>
 
     <input type="submit" value="submit" />
     </form>
-           
 EOF;
 });
 
