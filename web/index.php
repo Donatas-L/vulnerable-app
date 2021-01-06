@@ -1,26 +1,36 @@
 <?php
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new Silex\Application();
 
-$app['db'] = function() {
-    return new PDO('mysql:host=localhost;dbname=vulnerable', 'vulnerable', 'vulnerable');
-};
+$app['debug'] = true;
 
-$app->get("/", function () {
-    return "Hello world!";
+$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
+    'db.options' => array(
+        'driver' => 'pdo_mysql',
+        'host' => 'mysql',
+        'user' => 'vulnerable',
+        'password' => 'vulnerable',
+        'dbname' => 'vulnerable',
+        'charset' => 'utf8',
+    ),
+));
+
+$app->get("/", function() use($app) {
+    return "Hello";
 });
 
-$app->get('/profile', function(Silex\Application $app){
+$app->get('/profile', function (Request $request) use($app) {
     $db = $app['db'];
+    $id = $request->query->get('id');
     
     // Possible SQL injection
-    $id = $_GET['id'];
-    $statement = $db->query("SELECT * FROM users WHERE id = $id");
+    $sql = "SELECT * FROM users WHERE id = $id";
 
-    $results = $statement->fetchAll();
-    $user = $results[0];
+    $user = $app['db']->fetchAssoc($sql, array((int) $id));
 
     // Possible XSS attack
     return <<<EOF
@@ -30,7 +40,7 @@ $app->get('/profile', function(Silex\Application $app){
     </dl>
 EOF;
 });
-$app->get('/login', function() {
+$app->get('/login', function() use($app) {
     
     // Plain text password
     return <<<EOF
@@ -43,12 +53,13 @@ $app->get('/login', function() {
 EOF;
 });
 
-$app->post('/login', function(Silex\Application $app) {
+$app->post('/login', function (Request $request) use($app) {
     $db = $app['db'];
 
     // Possible SQL injection
     $username = $_POST['username'];
     $password = $_POST['password'];
+
     $statement = $db->query("SELECT * FROM users WHERE username = '$username' AND password = '$password'");
 
     $results = $statement->fetchAll();

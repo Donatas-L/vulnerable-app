@@ -32,7 +32,7 @@ services:
     image: mysql:${MYSQL_VERSION:-latest}
     restart: always
     ports:
-      - "3300:3306"
+      - "3300:3300"
     volumes:
             - data:/var/lib/mysql
     networks:
@@ -43,6 +43,22 @@ services:
       MYSQL_USER: vulnerable
       MYSQL_PASSWORD: vulnerable
     container_name: mysql
+
+  phpmyadmin:
+    links:
+      - mysql
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - '8080:80'
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root_psw 
+      PMA_ARBITRARY: 1
+      MYSQL_USERNAME: vulnerable
+    networks:
+      - backend
+
 networks:
   frontend:
   backend:
